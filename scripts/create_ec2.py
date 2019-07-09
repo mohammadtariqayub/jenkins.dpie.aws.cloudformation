@@ -152,9 +152,9 @@ def main():
     resources = cf_client.list_stack_resources(StackName=stack_name)
     print(resources)
 
-    stack_output = cf_client.describe_stacks(StackName=stack_name)
-    print (stack_output)
-    ec2_instanceID_output = stack_output['StackResourceSummaries'][0]['PhysicalResourceId'][0]['OutputValue']
+    #stack_output = cf_client.describe_stacks(StackName=stack_name)
+    #print (stack_output)
+    ec2_instanceID_output = resources['StackResourceSummaries'][0]['PhysicalResourceId']
     print(ec2_instanceID_output)
 
     create_artifact(str(ec2_instanceID_output))
