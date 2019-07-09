@@ -1,0 +1,257 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Application Load Balancer
+
+Parameters:
+  ALBName:
+    Description: Application Load Balancer Name
+    Type: String
+    Default: poc-test-moh
+    
+  ALBScheme:
+    Description: Application Load Balancer Scheme
+    Type: String
+    Default: internet-facing
+    AllowedValues:
+      - internet-facing
+      - internal
+  
+  ALBAcessLogBucket:
+    Description: Application Load Balancer access log bucket
+    Type: String
+    Default: s3-prod-logs-syd-820636345429
+      
+  CertificateArn:
+    Description: Certificate ARN
+    Type: String
+    Default: arn:aws:acm:ap-southeast-2:820636345429:certificate/3b92ea71-3008-44de-92e4-fafdb6d81d26
+
+  VpcId:
+    Description: Enter the VPCId that the system will be deployed to
+    Type: AWS::EC2::VPC::Id
+    Default: vpc-0da9da6feea5676db
+    
+  CloudFrontGlobalSecurityGroupID:
+    Description: Application Load Balancer Global Security Group
+    Type: AWS::EC2::SecurityGroup::Id
+    
+  CloudFrontRegionalSecurityGroupID:
+    Description: Application Load Balancer Regional Security Group
+    Type: AWS::EC2::SecurityGroup::Id
+
+  PublicSubnetA:
+    Description: Web Subnet A ID
+    Type: AWS::EC2::Subnet::Id
+    Default: subnet-0c76bc708cb76cb89
+
+  PublicSubnetB:
+    Description: Web Subnet B ID
+    Type: AWS::EC2::Subnet::Id
+    Default: subnet-02e843bf750307961
+      
+  PublicSubnetC:
+    Description: Web Subnet C ID
+    Type: AWS::EC2::Subnet::Id
+    Default: subnet-0fc3eebb4d8dcc9fc
+      
+  EC2Instance1:
+    Description: EC2Instance1
+    Type: String
+    Default: i-0d211d966d1690a5a
+
+  EC2Instance2:
+    Description: EC2Instance2
+    Type: String
+    Default: i-09c546dd409033590
+    
+  Application:
+    Description: Application Name
+    Type: String
+    Default: poc.test.moh.industry.nsw.gov.au
+    
+  BusinessOwner:
+    Description: AWS Account Alias
+    Type: String
+    Default: aws-disrd-poc
+   
+  BusinessUnit:
+    Description: Name of team branch
+    Type: String
+    Default: vdc
+    
+  CFNTemplate:
+    Description: Cloudformation template file name
+    Type: String
+    Default: 04-poc.test.moh.industry.nsw.gov.au-alb.yml
+    
+  Criticality:
+    Description: critical,vhigh,high,med,low
+    Type: String
+    Default: low
+    AllowedValues:
+      - low
+      - med
+      - high
+      - vhigh
+      - critical
+      
+  Environment:
+    Description: prd/tst/dev
+    Type: String
+    Default: tst
+    AllowedValues:
+      - dev
+      - tst
+      - prd
+      
+  RecID:
+    Description: Cherwell CSP number
+    Type: String
+    Default: CSPxxxx
+    
+  SystemOwner:
+    Description: Email address of the system owner
+    Type: String
+    Default: mohammad.ayub@industry.nsw.gov.au
+
+  Role:
+    Description: Role description
+    Type: String
+    Default: 'web'
+    
+  SslPolicy:
+    Description: Security Policy
+    Type: String
+    Default: ELBSecurityPolicy-TLS-1-2-2017-01
+    AllowedValues:
+      - ELBSecurityPolicy-TLS-1-2-2017-01
+      - ELBSecurityPolicy-TLS-1-1-2017-01
+      - ELBSecurityPolicy-TLS-1-2-Ext-2018-06
+ 
+Resources:
+  ALBListener443:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      Certificates:
+        - CertificateArn: !Ref CertificateArn
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref ALBTargetGroup
+      LoadBalancerArn: !Ref ApplicationLoadBalancer
+      Port: 443
+      Protocol: HTTPS
+      SslPolicy: !Ref SslPolicy
+      
+  ApplicationLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      LoadBalancerAttributes:
+        - Key: access_logs.s3.enabled
+          Value: true
+        - Key: access_logs.s3.bucket
+          Value: !Ref ALBAcessLogBucket
+        - Key: access_logs.s3.prefix
+          Value: 
+            !Join
+              - ''
+              - - !Ref ALBName
+                - '-alb-access-logs'
+        - Key: deletion_protection.enabled
+          Value: true
+        - Key: idle_timeout.timeout_seconds
+          Value: '60'
+        - Key: routing.http2.enabled
+          Value: true
+      Name: !Ref ALBName
+      Scheme: !Ref ALBScheme
+      SecurityGroups:
+        - !Ref CloudFrontGlobalSecurityGroupID
+        - !Ref CloudFrontRegionalSecurityGroupID
+      Subnets:
+        - !Ref PublicSubnetA
+        - !Ref PublicSubnetB
+        - !Ref PublicSubnetC
+      Type: application
+      IpAddressType: ipv4
+      Tags:
+        - Key: Name
+          Value: !Ref ALBName
+        - Key: Application
+          Value: !Ref Application
+        - Key: BusinessOwner
+          Value: !Ref BusinessOwner
+        - Key: BusinessUnit
+          Value: !Ref BusinessUnit
+        - Key: CFNTemplate
+          Value: !Ref CFNTemplate
+        - Key: Criticality
+          Value: !Ref Criticality
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: RecID
+          Value: !Ref RecID
+        - Key: SystemOwner
+          Value: !Ref SystemOwner
+        - Key: Role
+          Value: !Ref Role
+
+  ALBTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 30
+      HealthCheckPath: /
+      HealthCheckPort: '80'
+      HealthCheckProtocol: 'HTTP'
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 5
+      Matcher:
+        HttpCode: '200'
+      Name: !Ref ALBName 
+      Port: 80
+      Protocol: 'HTTP'
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: 300
+        - Key: slow_start.duration_seconds
+          Value: 0
+        - Key: stickiness.enabled
+          Value: true
+        - Key: stickiness.type
+          Value: lb_cookie
+        - Key: stickiness.lb_cookie.duration_seconds
+          Value: 180
+      Targets:
+        - Id:
+            Ref: EC2Instance1
+          Port: 80
+        - Id:
+            Ref: EC2Instance2
+          Port: 80
+      TargetType: 'instance'
+      UnhealthyThresholdCount: 3
+      VpcId: !Ref VpcId
+      Tags:
+        - Key: Name
+          Value: !Ref ALBName
+        - Key: Application
+          Value: !Ref Application
+        - Key: BusinessOwner
+          Value: !Ref BusinessOwner
+        - Key: BusinessUnit
+          Value: !Ref BusinessUnit
+        - Key: CFNTemplate
+          Value: !Ref CFNTemplate
+        - Key: Criticality
+          Value: !Ref Criticality
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: RecID
+          Value: !Ref RecID
+        - Key: SystemOwner
+          Value: !Ref SystemOwner
+        - Key: Role
+          Value: !Ref Role         
+
+Outputs:
+  LoadBalancerDetails:
+    Description: Load Balancer DNSName
+    Value: !GetAtt ApplicationLoadBalancer.DNSName

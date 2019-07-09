@@ -1,0 +1,303 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Deploy single instance of Windows Server"
+
+Parameters:
+  ImageID:
+    Type: String
+    Default: ami-0628ef1f10e34307d
+    Description: AMI id
+  HostName:
+    Type: String
+    Default: amadev-moh-1
+    Description: Name of the host
+  InstanceType:
+    Type: String
+    Default: t3.small
+    Description: Instance Type
+    AllowedValues:
+      - t3.micro
+      - t3.small
+      - t3.medium
+      - t3.large
+      - t3.xlarge
+      - m5.large
+      - m5.xlarge
+      - t2.micro
+      - t2.small
+      - t2.medium
+      - t2.large
+      - m4.large
+      - m4.xlarge
+      - m4.2xlarge
+  InstanceProfile:
+    Type: String
+    Default: bts-windows-instance-profile
+    Description: Default instance profile. Remember this is instance profile, not instance role.
+  SecurityGroupId:
+    Type: String
+    Default: sg-0accba28318e4819c
+    Description: Security Group Id
+  SubnetId:
+    Type: "AWS::EC2::Subnet::Id"
+    Default: subnet-061b3d9a7f8b88210
+    Description: Subnet Id
+  KeyPairName:
+    Type: String
+    Default: "DOI-POC-MOHAMMAD-ACCESS-KEY"
+    Description: Name of key pair to be used
+  Proxy:
+    Type: String
+    Description: Proxy address.
+    Default: "https://amaprdsymprxelb01.dpi.nsw.gov.au:8080"
+  Environment:
+    Type: String
+    Description: Environment type. eg, prd
+    Default: test
+    ConstraintDescription: Valid Name
+    AllowedValues:
+      - dev
+      - test
+      - prod
+  OS:
+    Type: String
+    Description: Name of the operating system.
+    Default: windows
+  AWSAccount:
+    Type: String
+    Description: Name of the AWS Account associated with this instance
+    Default: aws-disrd-poc
+  SystemOwner:
+    Type: String
+    Description: Application system owner. eg, messaging
+    Default: XXXXX
+  GorillaStack:
+    Type: String
+    Description: A valid power schedule. eg, 247
+    Default: businesshours
+    ConstraintDescription: Valid Name
+    AllowedValues:
+      - businesshours
+      - ondemand
+      - weekendonly
+      - 247
+  SNSTopicARN:
+    Type: String
+    Description: Enter the SNS Topic ARN to subscribe to
+    Default: "arn:aws:sns:ap-southeast-2:820636345429:mohammad-ping-poc-topic"
+    ConstraintDescription: Must be a valid SNS Topic ARN
+  JoinDomain:
+    Type: String
+    Default: true
+    Description: Specifiy is the instance should join  Active Directory domain.
+Conditions:
+  DomainJoinCondition: !Equals [!Ref JoinDomain , true]
+Resources:
+  ServerInstance1:
+    Type: "AWS::EC2::Instance"
+    Metadata:
+        AWS::CloudFormation::Init:
+          config:
+            files:
+              'C:\cfn\RunCommand.bat':
+                content:
+                  "%~1\nIF %ERRORLEVEL% GTR 10 ( exit /b 1 ) else ( exit /b 0 )"
+              'C:\cfn\cfn-hup.conf':
+                content:
+                  !Join
+                    - ""
+                    - - "[main]\n"
+                      - "stack="
+                      - !Ref "AWS::StackId"
+                      - "\n"
+                      - "region="
+                      - !Ref "AWS::Region"
+                      - "\n"
+              'C:\cfn\hooks.d\cfn-auto-reloader.conf':
+                content:
+                  !Join
+                    - ""
+                    - - "[cfn-auto-reloader-hook]\n"
+                      - "triggers=post.update\n"
+                      - "path=Resources.Instance1.Metadata.AWS::CloudFormation::Init\n"
+                      - "action=cfn-init.exe -v -s "
+                      - !Ref "AWS::StackId"
+                      - " -r Instance1"
+                      - " --region "
+                      - !Ref "AWS::Region"
+                      - " --https-proxy "
+                      - !Ref "Proxy"
+                      - "\n"
+              'C:\cfn\script1.ps1':
+                content:
+                  !Join
+                    - ""
+                    - - "mkdir c:\\data\n"
+                      - "cd c:\\data\n"
+                      - "c:\\\"Program Files\"\\Amazon\\AWSCLI\\aws.exe s3 cp s3://aws-disrd-dev-cloudformation-scripts . --recursive\n"
+                      - "tzutil /s \"AUS Eastern Standard Time\"\n"
+                      - "\n"
+              'C:\cfn\awscli.msi':
+                source: "https://s3.amazonaws.com/aws-cli/AWSCLI64.msi"
+            commands:
+              1-installawscli:
+                command: "msiexec /i c:\\cfn\\awscli.msi /quiet /qn /norestart /log c:\\cfn\\installlog_awscli.log"
+                waitafterCompletion: 3
+              2-downlaod_script:
+                command: "powershell.exe -ExecutionPolicy Unrestricted -Command c:\\cfn\\script1.ps1"
+                waitafterCompletion: 3
+              3-rename:
+                command:
+                  !Join
+                    - ""
+                    - - "powershell.exe -ExecutionPolicy ByPass -Command Rename-Computer -NewName "
+                      - !Ref "HostName"
+                      - " -Restart"
+                waitafterCompletion: forever
+#              2-set-agent:
+#                command:
+#                  !Join
+#                    - ""
+#                    - - "powershell.exe -ExecutionPolicy Unrestricted -Command c:\\WindowsSOEBuild\\windows2016_bootstrap.ps1 "
+#                      - "-OU \""
+#                      - !Ref "OULocation"
+#                      - "\""
+#                waitafterCompletion: 15
+#              3-cleanup:
+#                command:
+#                  !Join
+#                  - ""
+#                  - - "powershell.exe -ExecutionPolicy ByPass -Command Remove-Item c:\\WindowsSOEBuild -Force -Recurse"
+#                waitafterCompletion: forever
+              4-signal-success:
+                command:
+                  !Join
+                  - ""
+                  - - "cfn-signal.exe -e 0 "
+                    - " --stack "
+                    - !Ref "AWS::StackName"
+                    - " --resource ServerInstance1"
+                    - " --region "
+                    - !Ref "AWS::Region"
+            services:
+              windows:
+                'cfn-hup':
+                  enabled: true
+                  ensureRunning: true
+                  files: ['c:\cfn\cfn-hup.conf', 'c:\cfn\hooks.d\cfn-auto-reloader.conf']
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT20M
+        Count: 1
+    Properties:
+      ImageId: !Ref ImageID
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyPairName
+      IamInstanceProfile:
+        !Ref InstanceProfile
+      BlockDeviceMappings:
+        -
+          DeviceName: "/dev/sda1"
+          Ebs:
+            VolumeSize: 50
+            VolumeType: gp2
+      NetworkInterfaces:
+        -
+          AssociatePublicIpAddress: false
+          DeviceIndex: 0
+          GroupSet:
+            - !Ref SecurityGroupId
+          SubnetId:
+            !Ref SubnetId
+      UserData:
+        Fn::Base64: !Join ["", ["<script>\n", "cfn-init.exe -v -s ",!Ref "AWS::StackId"," -r ServerInstance1 ", " --region ",!Ref "AWS::Region", "\n","</script>\n"]]
+      Tags:
+        -
+          Key: Name
+          Value:  !Ref HostName
+        -
+          Key: Environment
+          Value: !Ref Environment
+        -
+          Key: OS
+          Value: !Ref OS
+        -
+          Key: SystemOwner
+          Value: !Ref SystemOwner
+        -
+          Key: GorillaStack
+          Value: !Ref GorillaStack
+        -
+          Key: AWSAccount
+          Value: !Ref AWSAccount
+  Instance1DiskAlarmHigh:
+    Type: "AWS::CloudWatch::Alarm"
+    DependsOn : ServerInstance1
+    Properties:
+      AlarmName:
+        !Join
+          - ""
+          - - !Ref HostName
+            - " "
+            - !Ref AWSAccount
+            - " Low Disk Availability"
+      AlarmDescription: "Alarm if available disk space on C: is less than 15% for 5 minutes"
+      MetricName: "FreeDiskPct C:"
+      EvaluationPeriods: 5
+      Statistic: Average
+      Threshold: 15
+      Period: 60
+      AlarmActions:
+        - !Ref SNSTopicARN
+      Namespace: "Windows/Default"
+      Dimensions:
+        - Name: "InstanceId"
+          Value: !Ref ServerInstance1
+      ComparisonOperator: "LessThanThreshold"
+  Instance1CPUAlarmHigh:
+    Type: "AWS::CloudWatch::Alarm"
+    DependsOn : ServerInstance1
+    Properties:
+      AlarmName:
+        !Join
+          - ""
+          - - !Ref HostName
+            - " "
+            - !Ref AWSAccount
+            - " High CPU Utilization"
+      AlarmDescription: "Alarm if CPU is above 90% for 5 minutes"
+      EvaluationPeriods: "5"
+      Statistic: "Average"
+      Threshold: "90"
+      Period: "60"
+      AlarmActions:
+        - !Ref SNSTopicARN
+      Namespace: "AWS/EC2"
+      Dimensions:
+        - Name: "InstanceId"
+          Value: !Ref ServerInstance1
+      MetricName: CPUUtilization
+      ComparisonOperator: "GreaterThanThreshold"
+  Instance1MemoryAlarm:
+    Type: "AWS::CloudWatch::Alarm"
+    DependsOn: ServerInstance1
+    Properties:
+      AlarmName:
+        !Join
+          - ""
+          - - !Ref HostName
+            - " "
+            - !Ref AWSAccount
+            - " High Memory Utilization"
+      AlarmDescription: "Alarm if Memory Available is less than 500MB for 25 minutes"
+      MetricName: Memory
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 5
+      Threshold: 500
+      AlarmActions:
+        - !Ref SNSTopicARN
+      Namespace: "Windows/Default"
+      Dimensions:
+        - Name: "InstanceId"
+          Value: !Ref ServerInstance1
+      ComparisonOperator: "LessThanThreshold"

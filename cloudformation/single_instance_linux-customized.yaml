@@ -1,0 +1,207 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: VDC Centos 7 + helper scripts
+Parameters:
+  InstanceAmi:
+    Description: Instance AMI
+    Type: String
+  InstanceProfile:
+    Description: Default instance profile
+    Type: String
+    Default: BTSManagedInstanceProfile
+    ConstraintDescription: Must be BTSManagedInstanceProfile
+    AllowedValues:
+      - BTSManagedInstanceProfile
+  KeyName:
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
+    Type: AWS::EC2::KeyPair::KeyName
+  HostName:
+    Type: String
+    Default: amadev-moh-1
+    Description: Name of the host
+  InstanceType:
+    Description: EC2 instance types
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+# General Purpose
+      - t2.nano
+      - t2.micro
+      - t2.small
+      - t2.medium
+      - t2.large
+      - t2.xlarge
+      - t2.2xlarge
+      - t3.nano
+      - t3.micro
+      - t3.small
+      - t3.medium
+      - t3.large
+      - t3.xlarge
+      - t3.2xlarge
+      - m5.large
+      - m5.xlarge
+      - m5.2xlarge
+      - m5.4xlarge
+      - m5.12xlarge
+      - m5.24xlarge
+# Compute Optimized
+      - c5.large 
+      - c5.xlarge
+      - c5.2xlarge
+      - c5.4xlarge
+      - c5.9xlarge
+      - c5.18xlarge 
+# Memory Optimized
+      - r5.large
+      - r5.xlarge
+      - r5.2xlarge
+      - r5.4xlarge
+      - r5.12xlarge
+      - r5.24xlarge
+    ConstraintDescription: must be a valid EC2 instance type.
+  LinuxSecurityGroup:
+    Description: Choose the default platform security group
+    Type: AWS::EC2::SecurityGroup::Id
+    ConstraintDescription: Must be default Linux security group
+  SubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Description: Enter the SubnetId of the subnet
+    ConstraintDescription: Must be a valid Subnet ID
+
+Resources:
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT15M
+        Count: '1'
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          full_install:
+            - install_and_enable_cfn_hup
+        install_and_enable_cfn_hup:
+          files:
+            /etc/cfn/cfn-hup.conf:
+              content:
+                Fn::Join:
+                - ""
+                - - "[main]\n"
+                  - stack=
+                  - Ref: AWS::StackId
+                  - "\n"
+                  - region=
+                  - Ref: AWS::Region
+                  - "\n"
+              mode: '000400'
+              owner: root
+              group: root
+            /etc/cfn/hooks.d/cfn-auto-reloader.conf:
+              content:
+                Fn::Join:
+                - ""
+                - - "[cfn-auto-reloader-hook]\n"
+                  - "triggers=post.update\n"
+                  - "path=Resources.EC2Instance.Metadata.AWS::CloudFormation::Init\n"
+                  - "action=/opt/aws/bin/cfn-init -v "
+                  - " --stack "
+                  - Ref: AWS::StackName
+                  - " --resource EC2Instance "
+                  - " --configsets full_install "
+                  - " --region "
+                  - Ref: AWS::Region
+                  - "\n"
+                  - "runas=root\n"
+            /lib/systemd/system/cfn-hup.service:
+              content:
+                Fn::Join:
+                - ""
+                - - "[Unit]\n"
+                  - "Description=cfn-hup daemon\n\n"
+                  - "[Service]\n"
+                  - "Type=simple\n"
+                  - "ExecStart=/opt/aws/bin/cfn-hup\n"
+                  - "Restart=always\n\n"
+                  - "[Install]\n"
+                  - "WantedBy=multi-user.target\n"
+            /root/soft/bootstrap_script1.sh:
+              content:
+                Fn::Join:
+                - ""
+                - - "!/usr/bin/bash\n"
+                  - "mkdir -p /root/soft\n"
+                  - "cd /root/soft\n"
+                  - "/usr/bin/aws s3 cp s3://aws-disrd-dev-cloudformation-scripts . --recursive\n"
+                  - "ln -sf /usr/share/zoneinfo/Australia/Sydney /etc/localtime\n"
+                  - "/usr/bin/bash /root/soft/rhel7_builder.sh\n"
+                  - "\n"
+
+          commands:
+            01-enable_cfn_hup:
+              command: systemctl enable cfn-hup.service
+            02-start_cfn_hup:
+              command: systemctl start cfn-hup.service
+            03-run_bootstrip:
+              command: "/usr/bin/bash /root/soft/bootstrap_script1.sh"
+            04-run_rename:
+              command:
+                  !Join
+                    - ""
+                    - - "/usr/bin/hostnamectl set-hostname --static"
+                      - !Ref "HostName"
+                      - " -reboot" 
+
+    Properties:
+      InstanceType:
+        Ref: InstanceType
+      SecurityGroupIds:
+        - !Ref LinuxSecurityGroup
+      KeyName:
+        Ref: KeyName
+      IamInstanceProfile: !Ref InstanceProfile
+      ImageId: !Ref InstanceAmi
+      DisableApiTermination: true
+      BlockDeviceMappings:
+        - DeviceName: '/dev/sda1'
+          Ebs:
+            VolumeType: 'gp2'
+            DeleteOnTermination: 'true'
+      SubnetId: !Ref SubnetId
+      UserData:
+        Fn::Base64:
+          Fn::Join:
+            - ""
+            - - "#!/bin/bash -xe\n"
+              - "yum update -y\n"
+              - "rpm -ih https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm\n"
+              - "yum install -y https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.amzn1.noarch.rpm\n"
+              - "ln -s /usr/local/lib/python2.7/site-packages/cfnbootstrap /usr/lib/python2.7/site-packages/cfnbootstrap\n"
+              - "yum -y install python-pip\n"
+              - "pip install awscli\n"
+              - "/opt/aws/bin/cfn-init -v "
+              - "--stack "
+              - Ref: AWS::StackName
+              - " --resource EC2Instance "
+              - "--configsets full_install "
+              - "--region "
+              - Ref: AWS::Region
+              - "\n"
+              - "/opt/aws/bin/cfn-signal -e $? "
+              - " --stack "
+              - Ref: AWS::StackName
+              - " --resource EC2Instance "
+              - " --region "
+              - Ref: AWS::Region
+              - "\n"
+      Tags:
+        -
+          Key: Name
+          Value:  !Ref HostName
+
+Outputs:
+  EC2InstanceId:
+    Description: Instance ID
+    Value: !Ref EC2Instance
+  EC2InstancePrivateIp:
+    Description: Instance Private IP address
+    Value: !GetAtt EC2Instance.PrivateIp

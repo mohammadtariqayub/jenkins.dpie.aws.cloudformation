@@ -1,0 +1,111 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Template provisions an ACM certificate
+
+Parameters:
+
+  ApexDomainName:
+    Type: String
+    Description: Apex Domain Name    
+    Default: industry.nsw.gov.au
+  
+  Application:
+    Type: String
+    Description: Application using the Certificate    
+    Default: ""  
+  
+  AWSAccount:
+    Type: String
+    Description: AWS Account name    
+    Default: "aws-disrd-poc"  
+
+  BusinessOwner:
+    Type: String
+    Description: aws account for the owning agency (example aws-disrd-water, aws-disrd-shared)
+    Default: "aws-disrd-xxx"
+    AllowedPattern: '^aws-disrd-([a-z]+)$'
+    ConstraintDescription: Valid aws account name
+
+  BusinessUnit:
+    Type: String
+    Description: Platform owner. eg, water, spatial, lls
+    Default: ""
+
+  CFNTemplate:
+    Type: String
+    Default: "acm-provision-ssl-certificate.yml"
+
+  Comments:
+    Type: String
+    Description: Description, notes or comments
+    Default: xxxxx
+
+  DomainName:
+    Type: String
+    Description: Domain Name
+    Default: ""
+
+  Environment:
+    Type: String
+    Description: Environment type. eg, prd
+    Default: tst
+    ConstraintDescription: Valid Name
+    AllowedValues:
+      - tst
+      - dev
+      - prd
+
+  ProjectCode:
+    Type: String
+    Description: A valid Project Code number.
+    Default: XXXXX
+
+  RecID:
+    Type: String
+    Description: Helpdesk Call number for build request.
+    Default: CSP-XXXXX
+
+  RFC:
+    Type: String
+    Description: RFC number for build request.
+    Default: RFC-XXXXX
+  
+  SystemOwner:
+    Description: Email Address of the application Owner
+    Type: String
+    Default: ""  
+
+Resources:
+  Certificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties: 
+      DomainName: !Ref DomainName      
+      DomainValidationOptions:
+        - DomainName: !Ref DomainName
+          ValidationDomain: !Ref ApexDomainName        
+        
+      ValidationMethod: EMAIL
+      Tags:            
+        - Key: AWSAccount
+          Value: !Ref AWSAccount
+        - Key: Application
+          Value: !Ref Application
+        - Key: Comments
+          Value: !Ref Comments          
+        - Key: CFNTemplate
+          Value: !Ref CFNTemplate
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: BusinessOwner
+          Value: !Ref BusinessOwner
+        - Key: BusinessUnit
+          Value: !Ref BusinessUnit
+        - Key: Name
+          Value: !Ref DomainName                
+        - Key: SystemOwner
+          Value: !Ref SystemOwner
+        - Key: RFC
+          Value: !Ref RFC
+        - Key: RefRecID
+          Value: !Ref RecID
+        - Key: ProjectCode
+          Value: !Ref ProjectCode

@@ -1,0 +1,136 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Deploy single instance using cli"
+
+Parameters: 
+
+  ImageId: 
+    Type: AWS::EC2::Image::Id
+    Description: AMI ID
+
+  HostName:
+    Type: String
+    MaxLength: 15
+    Default: amapocmoh-4
+    Description: Name of the host
+
+  SubnetId: 
+    Type: AWS::EC2::Subnet::Id
+    Description: Subnet ID
+  
+  SecurityGroupIds:
+    Type: AWS::EC2::SecurityGroup::Id
+    Description: Choose the default platform security group
+
+  SystemOwner:
+    Type: String
+    Description: Emails address of technical point of contact for the server.
+    Default: ""
+  
+  OS:
+    Type: String
+    Description: Enter OS
+    Default: ""
+  
+  SNSTopicARN:
+    Type: String
+    Description: Enter the SNS Topic ARN to subscribe to
+    Default: "arn:aws:sns:ap-southeast-2:820636345429:mohammad-ping-poc-topic"
+    ConstraintDescription: Must be a valid SNS Topic ARN
+
+Resources:
+  MyEC2Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !Ref ImageId
+      InstanceType: t2.micro
+      SubnetId: !Ref SubnetId
+      SecurityGroupIds:
+       - !Ref SecurityGroupIds
+      KeyName: DOI-POC-MOHAMMAD-ACCESS-KEY
+      BlockDeviceMappings:
+        -
+          DeviceName: "/dev/xvda"
+          Ebs:
+            VolumeSize: 30
+            VolumeType: gp2
+      Tags:
+        -
+          Key: Name
+          Value:  amapoc-moh-private-web-3
+        -
+          Key: SystemOwner
+          Value: !Ref SystemOwner
+        -
+          Key: OS
+          Value: !Ref OS
+
+  Instance1DiskAlarmHigh:
+    Type: "AWS::CloudWatch::Alarm"
+    DependsOn : MyEC2Instance
+    Properties:
+      AlarmName:
+        !Join
+          - ""
+          - - !Ref HostName
+            - " "
+            - " Low Disk Availability"
+      AlarmDescription: "Alarm if available disk space on C: is less than 15% for 5 minutes"
+      MetricName: "FreeDiskPct C:"
+      EvaluationPeriods: 5
+      Statistic: Average
+      Threshold: 15
+      Period: 60
+      AlarmActions:
+        - !Ref SNSTopicARN
+      Namespace: "AWS/EC2"
+      Dimensions:
+        - Name: "InstanceId"
+          Value: !Ref MyEC2Instance
+      ComparisonOperator: "LessThanThreshold"
+  Instance1CPUAlarmHigh:
+    Type: "AWS::CloudWatch::Alarm"
+    DependsOn : MyEC2Instance
+    Properties:
+      AlarmName:
+        !Join
+          - ""
+          - - !Ref HostName
+            - " "
+            - " High CPU Utilization"
+      AlarmDescription: "Alarm if CPU is above 90% for 5 minutes"
+      EvaluationPeriods: "5"
+      Statistic: "Average"
+      Threshold: "90"
+      Period: "60"
+      AlarmActions:
+        - !Ref SNSTopicARN
+      Namespace: "AWS/EC2"
+      Dimensions:
+        - Name: "InstanceId"
+          Value: !Ref MyEC2Instance
+      MetricName: CPUUtilization
+      ComparisonOperator: "GreaterThanThreshold"
+  Instance1MemoryAlarm:
+    Type: "AWS::CloudWatch::Alarm"
+    DependsOn: MyEC2Instance
+    Properties:
+      AlarmName:
+        !Join
+          - ""
+          - - !Ref HostName
+            - " "
+            - " High Memory Utilization"
+      AlarmDescription: "Alarm if Memory Available is less than 500MB for 25 minutes"
+      MetricName: Memory
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 5
+      Threshold: 500
+      AlarmActions:
+        - !Ref SNSTopicARN
+      Namespace: "AWS/EC2"
+      Dimensions:
+        - Name: "InstanceId"
+          Value: !Ref MyEC2Instance
+      ComparisonOperator: "LessThanThreshold"
+Test

@@ -1,0 +1,175 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: 'Cloudfront Deployment'
+
+Parameters:
+  CloudfrontCertificate:
+    Description: 'ACM certificate must be from the us-east-1 region!'
+    Type: String
+    Default: arn:aws:acm:us-east-1:959603514248:certificate/b737a63a-3200-4ea9-869a-90cc2af02071
+    
+  DomainName:
+    Description: Domain Name
+    Type: String
+    Default: spatial-dev-portal.industry.nsw.gov.au
+
+  ELBDNSName:
+    Description: ELB DNS Name
+    Type: String
+        
+  WafAcl:
+    Description: 'WAF ACL'
+    Type: String
+
+  Application:
+    Description: Application Name
+    Type: String
+    Default: testvdc.industry.nsw.gov.au
+    
+  BusinessOwner:
+    Description: AWS Account Alias
+    Type: String
+    Default: aws-disrd-dev
+   
+  BusinessUnit:
+    Description: Name of team branch
+    Type: String
+    Default: vdc
+    
+  CFNTemplate:
+    Description: Cloudformation template file name
+    Type: String
+    Default: deploy-cloudfront-single-domain.yml
+    
+  Criticality:
+    Description: critical,vhigh,high,med,low
+    Type: String
+    Default: low
+    AllowedValues:
+      - low
+      - med
+      - high
+      - vhigh
+      - critical
+      
+  Environment:
+    Description: prd/tst/dev
+    Type: String
+    Default: tst
+    AllowedValues:
+      - dev
+      - tst
+      - prd
+      
+  RecID:
+    Description: Cherwell CSP number
+    Type: String
+    Default: CSPxxxx
+    
+  SystemOwner:
+    Description: Email address of the system owner
+    Type: String
+    Default: shimil.george@industry.nsw.gov.au
+
+  Role:
+    Description: Role description
+    Type: String
+    Default: 'web'
+  
+  PublicAccess:
+    Description: S3 Bucket permission tag
+    Type: String
+    Default: 'no'
+    
+  BucketName:
+    Description: Cloudfront access logs S3 Bucket
+    Type: String
+    Default: 'aws-disrd-dev-spataildevportal-cf-logs'
+        
+Resources:
+  Cloudfront:
+    Type: 'AWS::CloudFront::Distribution'    
+    Properties:
+      DistributionConfig:        
+        WebACLId: !Ref WafAcl
+        HttpVersion: http2
+        IPV6Enabled: false
+        Aliases:
+          - !Ref DomainName
+        Comment: !Ref DomainName
+        Enabled: true
+        PriceClass: PriceClass_All        
+        DefaultCacheBehavior:
+          TargetOriginId: !Ref ELBDNSName
+          ViewerProtocolPolicy: redirect-to-https
+          MinTTL: 0
+          AllowedMethods:
+            - HEAD
+            - DELETE
+            - POST
+            - GET
+            - OPTIONS
+            - PUT
+            - PATCH
+          CachedMethods:
+            - HEAD
+            - GET
+          ForwardedValues:
+            QueryString: true
+            Headers:
+              - '*'
+            Cookies:
+              Forward: all
+
+        Logging:
+          Bucket: !Join ['',[!Ref BucketName, '.s3.amazonaws.com']]
+          IncludeCookies: 'true'
+          Prefix: !Ref Environment
+
+        Origins:
+          - DomainName: !Ref ELBDNSName
+            Id: !Ref ELBDNSName
+            CustomOriginConfig:              
+              HTTPSPort: '443'
+              OriginReadTimeout: 60
+              OriginKeepaliveTimeout: 10
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols:                
+                - TLSv1.1
+                - TLSv1.2
+
+        Restrictions:
+          GeoRestriction:
+            RestrictionType: none
+            Locations: []
+        ViewerCertificate:
+          AcmCertificateArn: !Ref CloudfrontCertificate
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.1_2016
+      Tags:
+        - Key: Name
+          Value: !Ref DomainName
+        - Key: Application
+          Value: !Ref Application
+        - Key: BusinessOwner
+          Value: !Ref BusinessOwner
+        - Key: BusinessUnit
+          Value: !Ref BusinessUnit
+        - Key: CFNTemplate
+          Value: !Ref CFNTemplate
+        - Key: Criticality
+          Value: !Ref Criticality
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: RecID
+          Value: !Ref RecID
+        - Key: SystemOwner
+          Value: !Ref SystemOwner
+        - Key: Role
+          Value: !Ref Role
+        - Key: PublicAccess
+          Value: !Ref PublicAccess
+
+Outputs:
+  CFdomain:
+    Value: !GetAtt [Cloudfront, DomainName]
+    Description: Cloudfront Domain Name

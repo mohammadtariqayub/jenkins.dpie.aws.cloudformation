@@ -1,0 +1,122 @@
+AWSTemplateFormatVersion: 2010-09-09
+### Description: DOI baseline S3 bucket template
+### Note: Must be deployed in Sydney region
+
+Description: 'DOI standard S3 bucket deployment'
+
+Parameters:
+  BucketName:
+    Description: 'Format must follow this convention aws-disrd-[account-name]-[purpose]'
+    Type: String
+    AllowedPattern: '^aws-disrd-([a-z]+-[a-z]*)+$'
+    Default: 'aws-disrd-xxx-yyy'
+  Versioning:
+    Description: 'Is versioning required'
+    Type: String
+    AllowedValues:
+      - Enabled
+      - Suspended
+    Default: Suspended
+  EnvironmentType:
+    Description: 'Environment Type'
+    Type: String
+    AllowedValues:
+      - prod
+      - nonprod
+  S3TagBusinessUnit:
+    Description: 'Business Unit Tag'
+    Type: String
+    Default: vdc
+  S3TagApplication:
+    Description: 'Name of the application'
+    Type: String
+  S3TagEnvironment:
+    Description: 'prd/tst/dev'
+    Type: String
+    AllowedValues:
+      - prd
+      - tst
+      - dev
+  S3TagSystemOwner:
+    Description: 'Email address of system owner / sponsor'
+    Type: String
+  S3TagRFC:
+    Description: 'RFC Code'
+    Type: String
+    Default: 'RFCxxx'
+  S3TagProjectCode:
+    Description: 'Project Code'
+    Type: String
+    Default: 'BTSxxx'
+  S3TagPublicAccess:
+    Description: 'Is public access required'
+    Type: String
+    AllowedValues:
+      - 'no'
+      - 'yes'
+    Default: 'no'
+   
+Conditions:
+  SydneyRegion: !Equals [ !Ref "AWS::Region", ap-southeast-2 ]
+  PublicAccess: !Equals [ !Ref S3TagPublicAccess, 'yes' ]
+  
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Condition: SydneyRegion
+    Properties:
+      AccessControl: Private
+      VersioningConfiguration: 
+         Status: !Ref Versioning
+      BucketName: !Ref BucketName
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: 'AES256'
+      LifecycleConfiguration:
+        Rules:
+          - Id: S3LifeCycleRule
+            Status: Enabled
+            Transitions:
+              - TransitionInDays: '90'
+                StorageClass: STANDARD_IA
+              - TransitionInDays: '180'
+                StorageClass: GLACIER
+            AbortIncompleteMultipartUpload:
+              DaysAfterInitiation: 7
+      LoggingConfiguration:
+        DestinationBucketName:
+          !Join
+            - ''
+            - - 's3-'
+              - !Ref EnvironmentType
+              - '-logs-syd-'
+              - !Ref 'AWS::AccountId'
+        LogFilePrefix:
+          !Join
+            - ''
+            - - !Ref BucketName
+              - '-access-logs/'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: !If [ PublicAccess, false, true ]        
+        RestrictPublicBuckets: !If [ PublicAccess, false, true ]
+
+      Tags:
+        - Key: BusinessOwner
+          Value: "{{resolve:ssm:AccountAlias:1}}"
+        - Key: Environment
+          Value: !Ref S3TagEnvironment
+        - Key: BusinessUnit
+          Value: !Ref S3TagBusinessUnit
+        - Key: Application
+          Value: !Ref S3TagApplication
+        - Key: SystemOwner
+          Value: !Ref S3TagSystemOwner
+        - Key: RFC
+          Value: !Ref S3TagRFC
+        - Key: ProjectCode
+          Value: !Ref S3TagProjectCode
+        - Key: PublicAccess
+          Value: !Ref S3TagPublicAccess

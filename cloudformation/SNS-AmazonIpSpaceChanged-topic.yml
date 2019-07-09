@@ -1,0 +1,16 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Subscribe to AmazonIpSpaceChanged Topic
+
+Parameters:
+  LambdaARN:
+    Description: Lambda ARN
+    Type: String
+
+Resources:
+  AmazonIpSpaceChangedSubscription:
+    Type: "AWS::SNS::Subscription"
+    Properties:
+      Endpoint: !Ref LambdaARN
+      Protocol: lambda
+      Region: us-east-1
+      TopicArn: arn:aws:sns:us-east-1:806199016981:AmazonIpSpaceChanged
