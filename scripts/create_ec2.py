@@ -153,6 +153,7 @@ def main():
     print(resources)
 
     stack_output = cf_client.describe_stacks(StackName=stack_name)
+    print (stack_output)
     ec2_instanceID_output = stack_output['StackResourceSummaries'][0]['PhysicalResourceId'][0]['OutputValue']
     print(ec2_instanceID_output)
 
