@@ -153,10 +153,10 @@ def main():
     print(resources)
 
     stack_output = cf_client.describe_stacks(StackName=stack_name)
-    alb_dns_output = stack_output['Stacks'][0]['Outputs'][0]['OutputValue']
-    print(alb_dns_output)
+    ec2_instanceID_output = stack_output['StackResourceSummaries'][0]['PhysicalResourceId'][0]['OutputValue']
+    print(ec2_instanceID_output)
 
-    create_artifact(str(alb_dns_output))
+    create_artifact(str(ec2_instanceID_output))
 
 if __name__ == "__main__":
     main()
