@@ -139,7 +139,7 @@ def main():
         'StackName': stack_name,
         'TemplateBody': template,
         'Parameters': parameter_data,
-        'EnableTerminationProtection': True,
+        'EnableTerminationProtection': False,
         'DisableRollback': True,
     }
 
@@ -157,7 +157,7 @@ def main():
     ec2_instanceID_output = resources['StackResourceSummaries'][0]['PhysicalResourceId']
     print("ec2 instance ID is : ", ec2_instanceID_output)
 
-    create_artifact(str(ec2_instanceID_output))
+    create_artifact(str(../ec2_instanceID_output))
 
 if __name__ == "__main__":
     main()
