@@ -117,7 +117,7 @@ def main():
     cf_resource = create_cfresource(credentials, AWS_REGION)
     
     # Parse the given template
-    template = parse_template("./cloudformation/ec2_basic.yaml", credentials=credentials)
+    template = parse_template("../cloudformation/ec2_basic.yaml", credentials=credentials)
     print ("Template validated!")
 
     stack_id = int(time())
