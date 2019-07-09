@@ -157,7 +157,7 @@ def main():
     ec2_instanceID_output = resources['StackResourceSummaries'][0]['PhysicalResourceId']
     print("ec2 instance ID is : ", ec2_instanceID_output)
 
-    create_artifact(str(../ec2_instanceID_output))
+    create_artifact(str(ec2_instanceID_output))
 
 if __name__ == "__main__":
     main()
