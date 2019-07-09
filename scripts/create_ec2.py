@@ -106,8 +106,7 @@ def get_params(parameters):
 
 def main():
     role_name = 'crossaccount-jenkins-slave-bts'
-    print (account_id)
-
+  
     arn = get_arn(account_id, role_name)
     print ("Assumming role...")
     assumed_role_object = assume_role(arn)
