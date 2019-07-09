@@ -130,7 +130,7 @@ def main():
     cft_params.append({'ImageId': ImageId})
     cft_params.append({'HostName': HostName})
     cft_params.append({'SubnetId': SubnetId})
-    cft_params.append({'ASecurityGroupIdsLBName': SecurityGroupIds})
+    cft_params.append({'SecurityGroupIds': SecurityGroupIds})
     cft_params.append({'SystemOwner': SystemOwner})
 
     parameter_data = get_params(cft_params)
