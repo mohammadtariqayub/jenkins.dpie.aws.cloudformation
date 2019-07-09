@@ -21,14 +21,14 @@ Parameters:
   
   SecurityGroupIds:
     Type: AWS::EC2::SecurityGroup::Id
-    default: sg-093b8019e736b90c0
+    Default: sg-093b8019e736b90c0
     Description: Choose the default platform security group
 
   SystemOwner:
     Type: String
-    Description: Emails address of technical point of contact for the server.
     Default: "mohammad.ayub@industry.nsw.gov.au"
-  
+    Description: Emails address of technical point of contact for the server.
+      
 Resources:
   MyEC2Instance:
     Type: 'AWS::EC2::Instance'
