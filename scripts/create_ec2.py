@@ -12,7 +12,6 @@ HostName = os.environ['HostName']
 SubnetId = os.environ['SubnetId']
 SecurityGroupIds = os.environ['SecurityGroupIds']
 SystemOwner = os.environ['SystemOwner']
-
 AWS_REGION = os.environ['Region']
 
 def get_arn(account_id, role_name):
