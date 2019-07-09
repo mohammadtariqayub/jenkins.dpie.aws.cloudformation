@@ -16,12 +16,12 @@ Parameters:
 
   SubnetId: 
     Type: AWS::EC2::Subnet::Id
-    Default : subnet-077b1394a895ba277
+    Default : subnet-061b3d9a7f8b88210
     Description: Subnet ID
   
   SecurityGroupIds:
     Type: AWS::EC2::SecurityGroup::Id
-    Default: sg-093b8019e736b90c0
+    Default: sg-0accba28318e4819c
     Description: Choose the default platform security group
 
   SystemOwner:
@@ -38,7 +38,7 @@ Resources:
       SubnetId: !Ref SubnetId
       SecurityGroupIds:
        - !Ref SecurityGroupIds
-      KeyName: DOI-SANDBOX_Keypair
+      KeyName: DOI-POC-MOHAMMAD-ACCESS-KEY
       BlockDeviceMappings:
         -
           DeviceName: "/dev/xvda"
