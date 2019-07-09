@@ -21,6 +21,7 @@ Parameters:
   
   SecurityGroupIds:
     Type: AWS::EC2::SecurityGroup::Id
+    default: sg-093b8019e736b90c0
     Description: Choose the default platform security group
 
   SystemOwner:
