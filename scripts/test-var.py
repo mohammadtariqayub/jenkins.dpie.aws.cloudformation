@@ -6,6 +6,7 @@ import boto3
 from time import time
 
 ### Global variables ###
-HostName = $HostName
+#HostName = $HostName
+HostName = os.environ['HostName']
 
 echo (HostName)
