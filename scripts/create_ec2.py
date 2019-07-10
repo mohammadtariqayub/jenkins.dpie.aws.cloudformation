@@ -14,6 +14,14 @@ SecurityGroupIds = os.environ['SecurityGroupIds']
 SystemOwner = os.environ['SystemOwner']
 AWS_REGION = os.environ['Region']
 
+print (account_id)
+print (ImageId)
+print(HostName)
+print(SubnetId)
+print (SecurityGroupIds)
+print (SystemOwner)
+print(AWS_REGION)
+
 def get_arn(account_id, role_name):
     ''' Returns the ARN we'll use when making requests '''
     arn = "arn:aws:iam::{account_id}:role/{role_name}".format(account_id=account_id,role_name=role_name)
