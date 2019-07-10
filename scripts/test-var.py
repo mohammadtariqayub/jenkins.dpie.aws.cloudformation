@@ -15,5 +15,5 @@ HostName = $HostName
 #SystemOwner = os.environ['SystemOwner']
 #AWS_REGION = os.environ['Region']
 
-echo (account_id)
+#echo (account_id)
 echo (HostName)
