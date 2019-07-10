@@ -9,4 +9,4 @@ from time import time
 #HostName = $HostName
 HostName = os.environ['HostName']
 
-echo (HostName)
+print (HostName)
