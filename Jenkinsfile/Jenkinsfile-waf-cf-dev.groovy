@@ -1,5 +1,9 @@
 node ('master') {
  
+  stage('template copy'){
+    git url: 'https://github.com/mohammadtariqayub/jenkins.aws.cloudformation.git'
+  }
+  
   stage('deploy ec2') {
     echo "deploy ec2"
     build job: 'ec2-single',
