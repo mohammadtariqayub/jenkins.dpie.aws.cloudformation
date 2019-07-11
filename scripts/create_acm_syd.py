@@ -7,6 +7,7 @@ from time import time
 
 ### Global variables ###
 account_id = os.environ['AWSAccountNumber']
+StackName = os.environ['StackName']
 ImageId = os.environ['ImageId']
 HostName = os.environ['HostName']
 SubnetId = os.environ['SubnetId']
@@ -63,7 +64,7 @@ def create_cfwaiter(client, stack_name):
 def create_artifact(text):
     ''' Create a text file as artifact '''
 
-    file_name = 'ec2-artifact.txt'
+    file_name = 'acm--sys-artifact.txt'
     with open(file_name,'w') as artifact:
         artifact.write(text)
 
@@ -116,20 +117,30 @@ def main():
     cf_resource = create_cfresource(credentials, AWS_REGION)
     
     # Parse the given template
-    template = parse_template("../cloudformation/ec2_basic.yaml", credentials=credentials)
+    template = parse_template("../cloudformation/acm-provision-ssl-certificate.yml", credentials=credentials)
     print ("Template validated!")
 
     stack_id = int(time())
-    jenkins_job_name = os.environ['JOB_BASE_NAME']
+    jenkins_job_name = os.environ['StackName']
     jenkins_build_number = os.environ['BUILD_NUMBER']
-    stack_name = jenkins_job_name + "-" + jenkins_build_number + "-" + str(stack_id)
+    stack_name = jenkins_job_name + "-" + "acm-syd"
     print ("Using stack name: " + stack_name)
 
     cft_params = []
-    cft_params.append({'ImageId': ImageId})
-    cft_params.append({'HostName': HostName})
-    cft_params.append({'SubnetId': SubnetId})
-    cft_params.append({'SecurityGroupIds': SecurityGroupIds})
+    cft_params.append({'StackName': StackName})
+    cft_params.append({'AWSAccountNumber': AWSAccountNumber})
+    cft_params.append({'Region': Region})
+    cft_params.append({'ApexDomainName': ApexDomainName})
+    cft_params.append({'Application': Application})
+    cft_params.append({'BusinessOwner': BusinessOwner})
+    cft_params.append({'BusinessUnit': BusinessUnit})
+    cft_params.append({'Comments': Comments})
+    cft_params.append({'DomainName': DomainName})
+    cft_params.append({'Environment': Environment})
+    cft_params.append({'ProjectCode': ProjectCode})
+    cft_params.append({'RecID': RecID})
+    cft_params.append({'RFC': RFC})
+    cft_params.append({'AWSAccount': AWSAccount})
     cft_params.append({'SystemOwner': SystemOwner})
 
     parameter_data = get_params(cft_params)
