@@ -134,8 +134,6 @@ def main():
 
     cft_params = []
     cft_params.append({'StackName': StackName})
-    cft_params.append({'AWSAccountNumber': AWSAccountNumber})
-    cft_params.append({'Region': Region})
     cft_params.append({'ApexDomainName': ApexDomainName})
     cft_params.append({'Application': Application})
     cft_params.append({'BusinessOwner': BusinessOwner})
