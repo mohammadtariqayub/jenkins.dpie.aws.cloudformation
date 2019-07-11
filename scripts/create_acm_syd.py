@@ -134,7 +134,6 @@ def main():
     print ("Using stack name: " + stack_name)
 
     cft_params = []
-    cft_params.append({'StackName': StackName})
     cft_params.append({'ApexDomainName': ApexDomainName})
     cft_params.append({'Application': Application})
     cft_params.append({'BusinessOwner': BusinessOwner})
