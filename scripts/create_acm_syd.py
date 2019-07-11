@@ -8,12 +8,18 @@ from time import time
 ### Global variables ###
 account_id = os.environ['AWSAccountNumber']
 StackName = os.environ['StackName']
-ImageId = os.environ['ImageId']
-HostName = os.environ['HostName']
-SubnetId = os.environ['SubnetId']
-SecurityGroupIds = os.environ['SecurityGroupIds']
-SystemOwner = os.environ['SystemOwner']
+Comments = os.environ['Comments']
+ApexDomainName = os.environ['ApexDomainName']
+Application = os.environ['Application']
+BusinessOwner = os.environ['BusinessOwner']
+BusinessUnit = os.environ['SystemBusinessUnit']
 AWS_REGION = os.environ['Region']
+DomainName = os.environ['DomainName']
+Environment = os.environ['Environment']
+ProjectCode = os.environ['ProjectCode']
+RecID = os.environ['RecID']
+AWSAccount = os.environ['AWSAccount']
+SystemOwner = os.environ['SystemOwner']
 
 def get_arn(account_id, role_name):
     ''' Returns the ARN we'll use when making requests '''
