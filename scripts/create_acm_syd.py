@@ -71,7 +71,7 @@ def create_cfwaiter(client, stack_name):
 def create_artifact(text):
     ''' Create a text file as artifact '''
 
-    file_name = 'acm-sys-artifact.txt'
+    file_name = 'acm-syd-artifact.txt'
     with open(file_name,'w') as artifact:
         artifact.write(text)
 
