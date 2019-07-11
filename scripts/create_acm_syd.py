@@ -18,6 +18,7 @@ DomainName = os.environ['DomainName']
 Environment = os.environ['Environment']
 ProjectCode = os.environ['ProjectCode']
 RecID = os.environ['RecID']
+RFC = os.environ['RFC']
 AWSAccount = os.environ['AWSAccount']
 SystemOwner = os.environ['SystemOwner']
 
