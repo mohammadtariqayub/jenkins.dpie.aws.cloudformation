@@ -8,18 +8,14 @@ from time import time
 ### Global variables ###
 account_id = os.environ['AWSAccountNumber']
 StackName = os.environ['StackName']
-Comments = os.environ['Comments']
-ApexDomainName = os.environ['ApexDomainName']
-Application = os.environ['Application']
-BusinessOwner = os.environ['BusinessOwner']
-BusinessUnit = os.environ['BusinessUnit']
 AWS_REGION = os.environ['Region']
-DomainName = os.environ['DomainName']
-Environment = os.environ['Environment']
+Application = os.environ['Application']
+AWSAccountSSMParameter = os.environ['AWSAccountSSMParameter']
+Comments = os.environ['Comments']
+DeploymentBucket = os.environ['DeploymentBucket']
 ProjectCode = os.environ['ProjectCode']
-RecID = os.environ['RecID']
-RFC = os.environ['RFC']
-AWSAccount = os.environ['AWSAccount']
+Environment = os.environ['Environment']
+VpcId = os.environ['VpcId']
 SystemOwner = os.environ['SystemOwner']
 
 def get_arn(account_id, role_name):
@@ -71,7 +67,7 @@ def create_cfwaiter(client, stack_name):
 def create_artifact(text):
     ''' Create a text file as artifact '''
 
-    file_name = 'acm-syd-artifact.txt'
+    file_name = 'sg-artifact.txt'
     with open(file_name,'w') as artifact:
         artifact.write(text)
 
@@ -124,7 +120,7 @@ def main():
     cf_resource = create_cfresource(credentials, AWS_REGION)
     
     # Parse the given template
-    template = parse_template("../cloudformation/acm-provision-ssl-certificate.yml", credentials=credentials)
+    template = parse_template("../cloudformation/cloudfront-elb-security-groups.yml", credentials=credentials)
     print ("Template validated!")
 
     stack_id = int(time())
