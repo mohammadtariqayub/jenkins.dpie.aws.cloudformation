@@ -146,6 +146,7 @@ def main():
         'TemplateBody': template,
         'Parameters': parameter_data,
         'EnableTerminationProtection': False,
+        'Capabilities': CAPABILITY_NAMED_IAM,
         'DisableRollback': True,
     }
 
