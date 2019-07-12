@@ -17,7 +17,6 @@ ProjectCode = os.environ['ProjectCode']
 Environment = os.environ['Environment']
 VpcId = os.environ['VpcId']
 SystemOwner = os.environ['SystemOwner']
-Capabilities_ID = 'CAPABILITY_NAMED_IAM'
 
 
 def get_arn(account_id, role_name):
@@ -148,7 +147,7 @@ def main():
         'TemplateBody': template,
         'Parameters': parameter_data,
         'EnableTerminationProtection': False,
-        'Capabilities': Capabilities_ID,
+        'capabilities': CAPABILITY_NAMED_IAM,
         'DisableRollback': True,
     }
 
@@ -163,10 +162,10 @@ def main():
 
     #stack_output = cf_client.describe_stacks(StackName=stack_name)
     #print (stack_output)
-    ec2_instanceID_output = resources['StackResourceSummaries'][0]['PhysicalResourceId']
-    print("ec2 instance ID is : ", ec2_instanceID_output)
+    sg_output = resources['StackResourceSummaries'][0]['PhysicalResourceId']
+    print("ec2 instance ID is : ", sg_output)
 
-    create_artifact(str(ec2_instanceID_output))
+    create_artifact(str(sg_output))
 
 if __name__ == "__main__":
     main()
