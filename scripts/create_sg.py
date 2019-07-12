@@ -17,6 +17,7 @@ ProjectCode = os.environ['ProjectCode']
 Environment = os.environ['Environment']
 VpcId = os.environ['VpcId']
 SystemOwner = os.environ['SystemOwner']
+capabilities_ID = 'CAPABILITY_NAMED_IAM'
 
 
 def get_arn(account_id, role_name):
@@ -147,7 +148,7 @@ def main():
         'TemplateBody': template,
         'Parameters': parameter_data,
         'EnableTerminationProtection': False,
-        'capabilities': CAPABILITY_NAMED_IAM,
+        'capabilities': capabilities_ID,
         'DisableRollback': True,
     }
 
