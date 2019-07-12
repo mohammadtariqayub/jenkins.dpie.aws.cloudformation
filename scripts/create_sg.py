@@ -163,10 +163,20 @@ def main():
 
     #stack_output = cf_client.describe_stacks(StackName=stack_name)
     #print (stack_output)
-    sg_output = resources['StackResourceSummaries'][0]['PhysicalResourceId']
-    print("ec2 instance ID is : ", sg_output)
+    lambda_output = resources['StackResourceSummaries'][0]['PhysicalResourceId']
+    print("lambda ID is : ", lambda_output)
 
-    create_artifact(str(sg_output))
+    create_artifact(str(lambda_output))
+
+    sg1_output = resources['StackResourceSummaries'][1]['PhysicalResourceId']
+    print("ec2 instance ID is : ", sg1_output)
+
+    create_artifact(str(sg1_output))
+
+    sg2_output = resources['StackResourceSummaries'][2]['PhysicalResourceId']
+    print("ec2 instance ID is : ", sg2_output)
+
+    create_artifact(str(sg2_output))
 
 if __name__ == "__main__":
     main()
