@@ -126,21 +126,17 @@ def main():
     stack_id = int(time())
     jenkins_job_name = os.environ['StackName']
     jenkins_build_number = os.environ['BUILD_NUMBER']
-    stack_name = jenkins_job_name + "-" + "acm-syd"
+    stack_name = jenkins_job_name + "-" + "sg"
     print ("Using stack name: " + stack_name)
 
     cft_params = []
-    cft_params.append({'ApexDomainName': ApexDomainName})
     cft_params.append({'Application': Application})
-    cft_params.append({'BusinessOwner': BusinessOwner})
-    cft_params.append({'BusinessUnit': BusinessUnit})
+    cft_params.append({'AWSAccountSSMParameter': AWSAccountSSMParameter})
     cft_params.append({'Comments': Comments})
-    cft_params.append({'DomainName': DomainName})
-    cft_params.append({'Environment': Environment})
+    cft_params.append({'DeploymentBucket': DeploymentBucket})
     cft_params.append({'ProjectCode': ProjectCode})
-    cft_params.append({'RecID': RecID})
-    cft_params.append({'RFC': RFC})
-    cft_params.append({'AWSAccount': AWSAccount})
+    cft_params.append({'Environment': Environment})
+    cft_params.append({'VpcId': VpcId})
     cft_params.append({'SystemOwner': SystemOwner})
 
     parameter_data = get_params(cft_params)
