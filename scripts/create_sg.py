@@ -17,7 +17,7 @@ ProjectCode = os.environ['ProjectCode']
 Environment = os.environ['Environment']
 VpcId = os.environ['VpcId']
 SystemOwner = os.environ['SystemOwner']
-capabilities_ID = 'CAPABILITY_NAMED_IAM'
+Capabilities_ID = 'CAPABILITY_NAMED_IAM'
 
 
 def get_arn(account_id, role_name):
