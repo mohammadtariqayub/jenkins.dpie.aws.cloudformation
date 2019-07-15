@@ -166,6 +166,7 @@ def main():
     print("lambda function ID is : ", lambda_output)
 
     create_artifact(str(lambda_output))
+
 #Create file name for sg1
 def create_artifact(text):
     ''' Create a text file as artifact '''
@@ -187,7 +188,7 @@ def create_artifact(text):
     with open(file_name,'w') as artifact:
         artifact.write(text)
 
-    sg2_output = resources['StackResourceSummaries'][4['PhysicalResourceId']
+    sg2_output = resources['StackResourceSummaries'][4]['PhysicalResourceId']
     print("sg2 ID is : ", sg2_output)
 
     create_artifact(str(sg2_output))
