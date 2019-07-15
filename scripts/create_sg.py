@@ -69,7 +69,7 @@ def create_cfwaiter(client, stack_name):
 def create_artifact(text):
     ''' Create a text file as artifact '''
 
-    file_name = 'sg-artifact.txt'
+    file_name = 'lambda-function-artifact.txt'
     with open(file_name,'w') as artifact:
         artifact.write(text)
 
@@ -162,18 +162,32 @@ def main():
     print(resources)
 
     #stack_output = cf_client.describe_stacks(StackName=stack_name)
-    #print (stack_output)
     lambda_output = resources['StackResourceSummaries'][0]['PhysicalResourceId']
-    print("lambda ID is : ", lambda_output)
+    print("lambda function ID is : ", lambda_output)
 
     create_artifact(str(lambda_output))
+#Create file name for sg1
+def create_artifact(text):
+    ''' Create a text file as artifact '''
 
-    sg1_output = resources['StackResourceSummaries'][1]['PhysicalResourceId']
+    file_name = 'sg1-artifact.txt'
+    with open(file_name,'w') as artifact:
+        artifact.write(text)
+
+    sg1_output = resources['StackResourceSummaries'][2]['PhysicalResourceId']
     print("ec2 instance ID is : ", sg1_output)
 
     create_artifact(str(sg1_output))
 
-    sg2_output = resources['StackResourceSummaries'][2]['PhysicalResourceId']
+#Create file name for sg2
+def create_artifact(text):
+    ''' Create a text file as artifact '''
+
+    file_name = 'sg2-artifact.txt'
+    with open(file_name,'w') as artifact:
+        artifact.write(text)
+
+    sg2_output = resources['StackResourceSummaries'][4['PhysicalResourceId']
     print("ec2 instance ID is : ", sg2_output)
 
     create_artifact(str(sg2_output))
