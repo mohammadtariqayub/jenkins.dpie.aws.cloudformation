@@ -175,7 +175,7 @@ def create_artifact(text):
         artifact.write(text)
 
     sg1_output = resources['StackResourceSummaries'][2]['PhysicalResourceId']
-    print("ec2 instance ID is : ", sg1_output)
+    print("sg1 ID is : ", sg1_output)
 
     create_artifact(str(sg1_output))
 
@@ -188,7 +188,7 @@ def create_artifact(text):
         artifact.write(text)
 
     sg2_output = resources['StackResourceSummaries'][4['PhysicalResourceId']
-    print("ec2 instance ID is : ", sg2_output)
+    print("sg2 ID is : ", sg2_output)
 
     create_artifact(str(sg2_output))
 
