@@ -168,7 +168,7 @@ def main():
     create_artifact(str(lambda_output))
 
 #Create file name for sg1
-def create_artifact(text):
+def create_artifactsg1(text):
     ''' Create a text file as artifact '''
 
     file_name = 'sg1-artifact.txt'
@@ -178,20 +178,20 @@ def create_artifact(text):
     sg1_output = resources['StackResourceSummaries'][2]['PhysicalResourceId']
     print("sg1 ID is : ", sg1_output)
 
-    create_artifact(str(sg1_output))
+    create_artifactsg1(str(sg1_output))
 
 #Create file name for sg2
-def create_artifact(text):
+def create_artifactsg2(text):
     ''' Create a text file as artifact '''
 
-    file_name = 'sg2-artifact.txt'
+    file_name = 'sg1-artifact.txt'
     with open(file_name,'w') as artifact:
         artifact.write(text)
 
-    sg2_output = resources['StackResourceSummaries'][4]['PhysicalResourceId']
-    print("sg2 ID is : ", sg2_output)
+    sg1_output = resources['StackResourceSummaries'][4]['PhysicalResourceId']
+    print("sg2 ID is : ", sg1_output)
 
-    create_artifact(str(sg2_output))
+    create_artifactsg2(str(sg1_output))
 
 if __name__ == "__main__":
     main()
