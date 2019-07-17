@@ -175,19 +175,22 @@ def main():
     resources = cf_client.list_stack_resources(StackName=stack_name)
     print(resources)
 
-    #stack_output = cf_client.describe_stacks(StackName=stack_name)
+    stack_output = cf_client.describe_stacks(StackName=stack_name)
+    print(stack_output)
+
+    # Create file for lambda
     lambda_output = resources['StackResourceSummaries'][0]['PhysicalResourceId']
     print("lambda function ID is : ", lambda_output)
 
     create_artifact(str(lambda_output))
 
-    # Create file name for sg1
+    # Create for sg1
     sg1_output = resources['StackResourceSummaries'][2]['PhysicalResourceId']
     print("sg1 ID is : ", sg1_output)
 
     create_artifactsg1(str(sg1_output))
 
-    # Create file name for sg2
+    # Create for sg2
     sg2_output = resources['StackResourceSummaries'][4]['PhysicalResourceId']
     print("sg2 ID is : ", sg2_output)
 
