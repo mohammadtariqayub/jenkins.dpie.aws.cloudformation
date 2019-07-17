@@ -73,6 +73,20 @@ def create_artifact(text):
     with open(file_name,'w') as artifact:
         artifact.write(text)
 
+def create_artifactsg1(text):
+    ''' Create a text file as artifact '''
+
+    file_name = 'sg1-artifact.txt'
+    with open(file_name,'w') as artifact:
+        artifact.write(text)
+
+def create_artifactsg2(text):
+    ''' Create a text file as artifact '''
+
+    file_name = 'sg2-artifact.txt'
+    with open(file_name,'w') as artifact:
+        artifact.write(text)
+
 def parse_template(template, credentials=None):
     ''' Parse Cloudformation template from a file '''
 
@@ -167,27 +181,13 @@ def main():
 
     create_artifact(str(lambda_output))
 
-#Create file name for sg1
-def create_artifactsg1(text):
-    ''' Create a text file as artifact '''
-
-    file_name = 'sg1-artifact.txt'
-    with open(file_name,'w') as artifact:
-        artifact.write(text)
-
+    # Create file name for sg1
     sg1_output = resources['StackResourceSummaries'][2]['PhysicalResourceId']
     print("sg1 ID is : ", sg1_output)
 
     create_artifactsg1(str(sg1_output))
 
-#Create file name for sg2
-def create_artifactsg2(text):
-    ''' Create a text file as artifact '''
-
-    file_name = 'sg2-artifact.txt'
-    with open(file_name,'w') as artifact:
-        artifact.write(text)
-
+    # Create file name for sg2
     sg2_output = resources['StackResourceSummaries'][4]['PhysicalResourceId']
     print("sg2 ID is : ", sg2_output)
 
