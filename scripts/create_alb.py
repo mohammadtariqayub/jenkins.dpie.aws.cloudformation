@@ -27,19 +27,16 @@ SystemOwner = os.environ['SystemOwner']
 
 ### reading sydney certificate arn from artifact
 path = '/var/lib/jenkins/workspace/Sandpit/CF-SAND/acm-cert-syd/scripts/acm-syd-artifact.txt'
-#Acm_sys_ARN_artifact = open(path,'r')
 with open(path,'r') as Acm_sys_ARN_artifact:
     Acm_syd_ARN = Acm_sys_ARN_artifact.read()
 
 ### reading sg1 from artifact
 path = '/var/lib/jenkins/workspace/Sandpit/CF-SAND/cloudfront-sg/scripts/sg1-artifact.txt'
-#sg1_artifact = open(path,'r')
 with open(path,'r') as sg1_artifact:
     sg1_ID = sg1_artifact.read()
 
 ### reading sg2 from artifact
 path = '/var/lib/jenkins/workspace/Sandpit/CF-SAND/cloudfront-sg/scripts/sg2-artifact.txt'
-#sg2_artifact = open(path,'r')
 with open(path,'r') as sg2_artifact:
     sg2_ID = sg2_artifact.read()
 
