@@ -43,7 +43,7 @@ sg2_ID = sg2_artifact.read()
 ### Local variables
 ALBName = Application + "-" + Environment + "-" + "ext-alb"
 CFNTemplate = 'create-alb.yml'
-CertificateArn = 'Acm_syd_ARN'
+CertificateArn = Acm_syd_ARN
 CloudFrontGlobalSecurityGroupID = sg1_ID
 CloudFrontRegionalSecurityGroupID = sg2_ID
 SslPolicy = 'ELBSecurityPolicy-TLS-1-2-2017-01'
