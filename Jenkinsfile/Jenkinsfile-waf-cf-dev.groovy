@@ -26,7 +26,7 @@ node ('master') {
            ]
   }
 
-    stage('create acm certificate us1') {
+  stage('create acm certificate us1') {
     echo "creating acm certificate us1"
     build job: 'acm-cert-us1',
            parameters: [
@@ -47,7 +47,7 @@ node ('master') {
            ]
   }
 
-    stage('deploy security group') {
+  stage('deploy security group') {
     echo "deploying security group"
     build job: 'cloudfront-sg',
            parameters: [
@@ -62,6 +62,15 @@ node ('master') {
                 string(name: 'Environment', value: params['Environment']),
                 string(name: 'VpcId', value: params['VpcId']),
                 string(name: 'SystemOwner', value: params['SystemOwner'])
+           ]
+  }
+
+  stage('subcsribe SNS') {
+    echo "subcsribe SNS topic for lambda"
+    build job: 'sns-us1',
+           parameters: [
+                string(name: 'StackName', value: params['StackName']),
+                string(name: 'AWSAccountNumber', value: params['AWSAccountNumber'])
            ]
   }
 

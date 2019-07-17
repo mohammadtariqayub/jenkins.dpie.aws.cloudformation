@@ -4,7 +4,7 @@ node ('master') {
     git url: 'https://github.com/mohammadtariqayub/jenkins.aws.cloudformation.git'
   }
   
-  stage('subcsribe SNS topic for lambda') {
+  stage('subcsribe SNS') {
     echo "subcsribe SNS topic for lambda"
     build job: 'sns-us1',
            parameters: [
