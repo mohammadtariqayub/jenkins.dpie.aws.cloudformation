@@ -217,7 +217,7 @@ def main():
     print(resources)
 
     # get load balancer name
-    alb_dns_output = alb_client.describe_load_balancers(Names=ALBName)
+    alb_dns_output = alb_client.describe_load_balancers(Names=[ALBName])
     print(alb_dns_output)
 
     #create_artifact(str(lambda_output))
