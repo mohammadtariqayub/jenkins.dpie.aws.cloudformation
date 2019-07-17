@@ -216,12 +216,15 @@ def main():
     resources = cf_client.list_stack_resources(StackName=stack_name)
     print(resources)
 
+    stack_output = cf_client.describe_stacks(StackName=stack_name)
+    print (stack_output)
+
     # get load balancer name
-    alb_name = resources['StackResourceSummaries'][2]['PhysicalResourceId']
-    print("alb_name function ID is : ", alb_name)
+    #alb_name = resources['StackResourceSummaries'][2]['PhysicalResourceId']
+    #print("alb_name function ID is : ", alb_name)
     
-    alb_dns_output = alb_client.describe_load_balancers(Names=alb_name)
-    print(alb_dns_output)
+    #alb_dns_output = alb_client.describe_load_balancers(Names=alb_name)
+    #print(alb_dns_output)
 
     #create_artifact(str(lambda_output))
 
