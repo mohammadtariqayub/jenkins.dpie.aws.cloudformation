@@ -156,7 +156,7 @@ Resources:
               - - !Ref ALBName
                 - '-alb-access-logs'
         - Key: deletion_protection.enabled
-          Value: true
+          Value: false
         - Key: idle_timeout.timeout_seconds
           Value: '60'
         - Key: routing.http2.enabled
