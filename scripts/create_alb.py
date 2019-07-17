@@ -29,19 +29,16 @@ SystemOwner = os.environ['SystemOwner']
 path = '/var/lib/jenkins/workspace/Sandpit/CF-SAND/acm-cert-syd/scripts/acm-syd-artifact.txt'
 Acm_sys_ARN_artifact = open(path,'r')
 Acm_syd_ARN = Acm_sys_ARN_artifact.read()
-print(Acm_syd_ARN)
 
 ### reading sg1 from artifact
 path = '/var/lib/jenkins/workspace/Sandpit/CF-SAND/cloudfront-sg/scripts/sg1-artifact.txt'
 sg1_artifact = open(path,'r')
 sg1_ID = sg1_artifact.read()
-print(sg1_ID)
 
 ### reading sg2 from artifact
 path = '/var/lib/jenkins/workspace/Sandpit/CF-SAND/cloudfront-sg/scripts/sg2-artifact.txt'
 sg2_artifact = open(path,'r')
 sg2_ID = sg2_artifact.read()
-print(sg2_ID)
 
 ### Local variables
 ALBName = Application + "-" + "Environment" + "-" + "ext-alb"
@@ -101,7 +98,7 @@ def create_cfwaiter(client, stack_name):
 def create_artifact(text):
     ''' Create a text file as artifact '''
 
-    file_name = 'acm-syd-artifact.txt'
+    file_name = 'alb-dns-artifact.txt'
     with open(file_name,'w') as artifact:
         artifact.write(text)
 
@@ -154,28 +151,38 @@ def main():
     cf_resource = create_cfresource(credentials, AWS_REGION)
     
     # Parse the given template
-    template = parse_template("../cloudformation/acm-provision-ssl-certificate.yml", credentials=credentials)
+    template = parse_template("../cloudformation/create-alb.yml", credentials=credentials)
     print ("Template validated!")
 
     stack_id = int(time())
     jenkins_job_name = os.environ['StackName']
     jenkins_build_number = os.environ['BUILD_NUMBER']
-    stack_name = jenkins_job_name + "-" + "acm-syd"
+    stack_name = jenkins_job_name + "-" + "alb"
     print ("Using stack name: " + stack_name)
 
     cft_params = []
-    cft_params.append({'ApexDomainName': ApexDomainName})
+    cft_params.append({'ALBName': ALBName})
+    cft_params.append({'ALBScheme': ALBScheme})
+    cft_params.append({'ALBAcessLogBucket': ALBAcessLogBucket})
+    cft_params.append({'CertificateArn': CertificateArn})
+    cft_params.append({'VpcId': VpcId})
+    cft_params.append({'CloudFrontGlobalSecurityGroupID': CloudFrontGlobalSecurityGroupID})
+    cft_params.append({'CloudFrontRegionalSecurityGroupID': CloudFrontRegionalSecurityGroupID})
+    cft_params.append({'PublicSubnetA': PublicSubnetA})
+    cft_params.append({'PublicSubnetB': PublicSubnetB})
+    cft_params.append({'PublicSubnetC': PublicSubnetC})
+    cft_params.append({'EC2Instance1': EC2Instance1})
+    cft_params.append({'EC2Instance2': EC2Instance2})
     cft_params.append({'Application': Application})
     cft_params.append({'BusinessOwner': BusinessOwner})
     cft_params.append({'BusinessUnit': BusinessUnit})
-    cft_params.append({'Comments': Comments})
-    cft_params.append({'DomainName': DomainName})
+    cft_params.append({'CFNTemplate': CFNTemplate})
+    cft_params.append({'Criticality': Criticality})
     cft_params.append({'Environment': Environment})
-    cft_params.append({'ProjectCode': ProjectCode})
     cft_params.append({'RecID': RecID})
-    cft_params.append({'RFC': RFC})
-    cft_params.append({'AWSAccount': AWSAccount})
     cft_params.append({'SystemOwner': SystemOwner})
+    cft_params.append({'Role': Role})
+    cft_params.append({'SslPolicy': SslPolicy})
 
     parameter_data = get_params(cft_params)
 
@@ -198,10 +205,10 @@ def main():
 
     #stack_output = cf_client.describe_stacks(StackName=stack_name)
     #print (stack_output)
-    acm_syd_output = resources['StackResourceSummaries'][0]['PhysicalResourceId']
-    print("ec2 instance ID is : ", acm_syd_output)
+    #acm_syd_output = resources['StackResourceSummaries'][0]['PhysicalResourceId']
+    #print("ec2 instance ID is : ", acm_syd_output)
 
-    create_artifact(str(acm_syd_output))
+    #create_artifact(str(acm_syd_output))
 
 if __name__ == "__main__":
     main()
