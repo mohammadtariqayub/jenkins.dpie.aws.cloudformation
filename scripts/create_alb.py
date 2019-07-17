@@ -218,9 +218,10 @@ def main():
 
     # get load balancer name
     alb_dns_output = alb_client.describe_load_balancers(Names=[ALBName])
-    print(alb_dns_output)
+    albDNS_output = alb_dns_output['LoadBalancers'][0]['DNSName']
+    print("alb DNS ID is : ", albDNS_output)
 
-    #create_artifact(str(lambda_output))
+    create_artifact(str(albDNS_output))
 
 if __name__ == "__main__":
     main()
