@@ -216,8 +216,8 @@ def main():
     # Create artifact for lambda arn
     lambda_arn_output = lambda_client.get_function_configuration(FunctionName=lambda_output)
     print(lambda_arn_output)
-    
-    lambdaarn_output = lambda_arn_output['ResponseMetadata'][0]['FunctionArn']
+
+    lambdaarn_output = lambda_arn_output['ResponseMetadata']['FunctionArn']
     print("lambda arn is : ", lambdaarn_output)
 
     create_artifactlambdaarn(str(lambdaarn_output))
