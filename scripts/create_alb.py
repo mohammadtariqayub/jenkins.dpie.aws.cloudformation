@@ -95,6 +95,18 @@ def create_cfwaiter(client, stack_name):
     
     return cfw
 
+def create_alb_client(credentials, AWS_REGION):
+    ''' Create a CloudFormation Client using the credentials '''
+    # Create a client to alb using credentials we get from STS
+
+    alb_cf = boto3.client('elbv2',
+                    region_name=AWS_REGION,
+                    aws_access_key_id = credentials['AccessKeyId'],
+                    aws_secret_access_key = credentials['SecretAccessKey'],
+                    aws_session_token = credentials['SessionToken'])
+    
+    return alb_cf
+
 def create_artifact(text):
     ''' Create a text file as artifact '''
 
@@ -149,6 +161,7 @@ def main():
     
     cf_client = create_cfclient(credentials, AWS_REGION)
     cf_resource = create_cfresource(credentials, AWS_REGION)
+    alb_client = create_alb_client(credentials, AWS_REGION)
     
     # Parse the given template
     template = parse_template("../cloudformation/create-alb.yml", credentials=credentials)
@@ -203,12 +216,14 @@ def main():
     resources = cf_client.list_stack_resources(StackName=stack_name)
     print(resources)
 
-    #stack_output = cf_client.describe_stacks(StackName=stack_name)
-    #print (stack_output)
-    #acm_syd_output = resources['StackResourceSummaries'][0]['PhysicalResourceId']
-    #print("ec2 instance ID is : ", acm_syd_output)
+    # get load balancer name
+    alb_name = resources['StackResourceSummaries'][2]['PhysicalResourceId']
+    print("alb_name function ID is : ", alb_name)
+    
+    alb_dns_output = alb_client.describe_load_balancers(Names=alb_name)
+    print(alb_dns_output)
 
-    #create_artifact(str(acm_syd_output))
+    #create_artifact(str(lambda_output))
 
 if __name__ == "__main__":
     main()
