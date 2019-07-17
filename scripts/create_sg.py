@@ -87,6 +87,13 @@ def create_artifactsg2(text):
     with open(file_name,'w') as artifact:
         artifact.write(text)
 
+def create_artifactlambdaarn(text):
+    ''' Create a text file as artifact '''
+
+    file_name = 'lambda-arn-artifact.txt'
+    with open(file_name,'w') as artifact:
+        artifact.write(text)
+
 def parse_template(template, credentials=None):
     ''' Parse Cloudformation template from a file '''
 
@@ -123,7 +130,7 @@ def get_params(parameters):
         
     return params
 
-def create_lambda(credentials, AWS_REGION):
+def create_lambda_client(credentials, AWS_REGION):
     ''' Create a CloudFormation Client using the credentials '''
     # Create a client to cloudformation using credentials we get from STS
 
@@ -146,7 +153,7 @@ def main():
     
     cf_client = create_cfclient(credentials, AWS_REGION)
     cf_resource = create_cfresource(credentials, AWS_REGION)
-    lambda_client = create_lambda(credentials, AWS_REGION)
+    lambda_client = create_lambda_client(credentials, AWS_REGION)
 
     # Parse the given template
     template = parse_template("../cloudformation/cloudfront-elb-security-groups.yml", credentials=credentials)
@@ -188,27 +195,32 @@ def main():
     resources = cf_client.list_stack_resources(StackName=stack_name)
     print(resources)
 
-    # Create file for lambda
+    lambda_arn_output = lambda_client.get_function_configuration(FunctionName=lambda_output)
+    print(lambda_arn_output)
+
+    # Create artifact for lambda function
     lambda_output = resources['StackResourceSummaries'][0]['PhysicalResourceId']
     print("lambda function ID is : ", lambda_output)
 
     create_artifact(str(lambda_output))
     
-    # Create for sg1
+    # Create artifact for sg1
     sg1_output = resources['StackResourceSummaries'][2]['PhysicalResourceId']
     print("sg1 ID is : ", sg1_output)
 
     create_artifactsg1(str(sg1_output))
 
-    # Create for sg2
+    # Create artifact for sg2
     sg2_output = resources['StackResourceSummaries'][4]['PhysicalResourceId']
     print("sg2 ID is : ", sg2_output)
 
     create_artifactsg2(str(sg2_output))
-    # 
-    lambda_arn_output = lambda_client.get_function_configuration(FunctionName=lambda_output)
-    print(lambda_arn_output)
+ 
+    # Create artifact for lambda arn
+    lambdaarn_output = lambda_arn_output['ResponseMetadata'][0]['FunctionArn']
+    print("lambda arn is : ", lambdaarn_output)
 
+    create_artifactlambdaarn(str(lambdaarn_output))
 
 if __name__ == "__main__":
     main()
