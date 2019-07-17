@@ -123,6 +123,18 @@ def get_params(parameters):
         
     return params
 
+def create_lambda(credentials, AWS_REGION):
+    ''' Create a CloudFormation Client using the credentials '''
+    # Create a client to cloudformation using credentials we get from STS
+
+    lambda_cf = boto3.client('lambda',
+                    region_name=AWS_REGION,
+                    aws_access_key_id = credentials['AccessKeyId'],
+                    aws_secret_access_key = credentials['SecretAccessKey'],
+                    aws_session_token = credentials['SessionToken'])
+    
+    return lambda_cf
+
 def main():
     role_name = 'crossaccount-jenkins-slave-bts'
   
@@ -134,7 +146,8 @@ def main():
     
     cf_client = create_cfclient(credentials, AWS_REGION)
     cf_resource = create_cfresource(credentials, AWS_REGION)
-    
+    lambda_client = create_lambda(credentials, AWS_REGION)
+
     # Parse the given template
     template = parse_template("../cloudformation/cloudfront-elb-security-groups.yml", credentials=credentials)
     print ("Template validated!")
@@ -175,15 +188,12 @@ def main():
     resources = cf_client.list_stack_resources(StackName=stack_name)
     print(resources)
 
-    stack_output = cf_client.describe_stacks(StackName=stack_name)
-    print(stack_output)
-
     # Create file for lambda
     lambda_output = resources['StackResourceSummaries'][0]['PhysicalResourceId']
     print("lambda function ID is : ", lambda_output)
 
     create_artifact(str(lambda_output))
-
+    
     # Create for sg1
     sg1_output = resources['StackResourceSummaries'][2]['PhysicalResourceId']
     print("sg1 ID is : ", sg1_output)
@@ -195,6 +205,10 @@ def main():
     print("sg2 ID is : ", sg2_output)
 
     create_artifactsg2(str(sg2_output))
+    # 
+    lambda_arn_output = lambda_client.get_function_configuration(FunctionName=lambda_output)
+    print(lambda_arn_output)
+
 
 if __name__ == "__main__":
     main()
