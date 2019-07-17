@@ -184,14 +184,14 @@ def create_artifactsg1(text):
 def create_artifactsg2(text):
     ''' Create a text file as artifact '''
 
-    file_name = 'sg1-artifact.txt'
+    file_name = 'sg2-artifact.txt'
     with open(file_name,'w') as artifact:
         artifact.write(text)
 
-    sg1_output = resources['StackResourceSummaries'][4]['PhysicalResourceId']
-    print("sg2 ID is : ", sg1_output)
+    sg2_output = resources['StackResourceSummaries'][4]['PhysicalResourceId']
+    print("sg2 ID is : ", sg2_output)
 
-    create_artifactsg2(str(sg1_output))
+    create_artifactsg2(str(sg2_output))
 
 if __name__ == "__main__":
     main()
