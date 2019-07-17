@@ -132,7 +132,7 @@ def get_params(parameters):
 
 def create_lambda_client(credentials, AWS_REGION):
     ''' Create a CloudFormation Client using the credentials '''
-    # Create a client to cloudformation using credentials we get from STS
+    # Create a client to lambda using credentials we get from STS
 
     lambda_cf = boto3.client('lambda',
                     region_name=AWS_REGION,
@@ -195,9 +195,6 @@ def main():
     resources = cf_client.list_stack_resources(StackName=stack_name)
     print(resources)
 
-    lambda_arn_output = lambda_client.get_function_configuration(FunctionName=lambda_output)
-    print(lambda_arn_output)
-
     # Create artifact for lambda function
     lambda_output = resources['StackResourceSummaries'][0]['PhysicalResourceId']
     print("lambda function ID is : ", lambda_output)
@@ -217,6 +214,9 @@ def main():
     create_artifactsg2(str(sg2_output))
  
     # Create artifact for lambda arn
+    lambda_arn_output = lambda_client.get_function_configuration(FunctionName=lambda_output)
+    print(lambda_arn_output)
+    
     lambdaarn_output = lambda_arn_output['ResponseMetadata'][0]['FunctionArn']
     print("lambda arn is : ", lambdaarn_output)
 
