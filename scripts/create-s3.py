@@ -15,7 +15,6 @@ BusinessUnit = os.environ['BusinessUnit']
 Environment = os.environ['Environment']
 EnvironmentType = os.environ['EnvironmentType']
 ProjectCode = os.environ['ProjectCode']
-RecID = os.environ['RecID']
 RFC = os.environ['RFC']
 SystemOwner = os.environ['SystemOwner']
 
