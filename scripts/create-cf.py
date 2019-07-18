@@ -147,7 +147,7 @@ def main():
     cf_resource = create_cfresource(credentials, AWS_REGION)
     
     # Parse the given template
-    template = parse_template("../deploy-cloudfront-single-domain.yml", credentials=credentials)
+    template = parse_template("../cloudformation/deploy-cloudfront-single-domain.yml", credentials=credentials)
     print ("Template validated!")
 
     stack_id = int(time())
