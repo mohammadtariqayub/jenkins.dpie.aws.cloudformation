@@ -15,8 +15,9 @@ BusinessUnit = ['BusinessUnit']
 Criticality = os.environ['Criticality']
 Environment = ['Environment']
 RecID = os.environ['RecID']
-SystemOwner = ['SystemOwner']
-BusinessOwner = ['BusinessOwner']
+SystemOwner = os.environ['SystemOwner']
+BusinessOwner = os.environ['BusinessOwner']
+
 
 ### reading CloudfrontCertificate arn from artifact
 path = '/var/lib/jenkins/workspace/Sandpit/CF-SAND/acm-cert-us1/scripts/acm-us1-artifact.txt'
