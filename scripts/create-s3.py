@@ -137,7 +137,7 @@ def main():
     stack_id = int(time())
     jenkins_job_name = os.environ['StackName']
     jenkins_build_number = os.environ['BUILD_NUMBER']
-    stack_name = jenkins_job_name + "-" + "acm-syd"
+    stack_name = jenkins_job_name + "-" + "s3-waf"
     print ("Using stack name: " + stack_name)
 
     cft_params = []
