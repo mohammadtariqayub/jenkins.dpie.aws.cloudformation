@@ -174,7 +174,7 @@ def main():
     #stack_output = cf_client.describe_stacks(StackName=stack_name)
     #print (stack_output)
     s3_cf_output = resources['StackResourceSummaries'][0]['PhysicalResourceId']
-    print("s3 WAF bucket name : ", s3_cf_output)
+    print("s3 CF bucket name : ", s3_cf_output)
 
     create_artifact(str(s3_cf_output))
 
