@@ -11,6 +11,7 @@ StackName = os.environ['StackName']
 AWS_REGION = os.environ['Region']
 Application = os.environ['Application']
 BusinessOwner = os.environ['BusinessOwner']
+Capabilities_ID = ['CAPABILITY_IAM','CAPABILITY_AUTO_EXPAND']
 
 ### Local variables
 AppAccessLogBucket = BusinessOwner + "-" + Application + "-" + "waf-logs"
@@ -158,6 +159,7 @@ def main():
         'TemplateBody': template,
         'Parameters': parameter_data,
         'EnableTerminationProtection': False,
+        'Capabilities': Capabilities_ID,
         'DisableRollback': True,
     }
 
