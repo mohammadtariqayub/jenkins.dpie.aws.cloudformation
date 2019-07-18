@@ -42,6 +42,8 @@ CFNTemplate = ['deploy-cloudfront-single-domain.yml']
 Role = 'web'
 PublicAccess = 'no'
 
+print(BucketName)
+
 def get_arn(account_id, role_name):
     ''' Returns the ARN we'll use when making requests '''
     arn = "arn:aws:iam::{account_id}:role/{role_name}".format(account_id=account_id,role_name=role_name)
