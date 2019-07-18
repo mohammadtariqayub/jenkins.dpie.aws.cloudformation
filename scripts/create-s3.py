@@ -24,6 +24,7 @@ Versioning = 'Suspended'
 S3TagBusinessUnit = os.environ['BusinessUnit']
 S3TagApplication = os.environ['Application']
 S3TagEnvironment = os.environ['Environment']
+S3TagProjectCode = os.environ['ProjectCode']
 S3TagSystemOwner = os.environ['SystemOwner']
 S3TagRFC = os.environ['RFC']
 S3TagPublicAccess = 'no'
