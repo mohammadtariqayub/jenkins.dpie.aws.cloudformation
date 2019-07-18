@@ -10,6 +10,7 @@ node ('master') {
            parameters: [
                 string(name: 'StackName', value: params['StackName']),
                 string(name: 'Application', value: params['Application']),
+                string(name: 'Region', value: params['Region']),
                 string(name: 'EnvironmentType', value: params['EnvironmentType']),
                 string(name: 'BusinessOwner', value: params['BusinessOwner']),
                 string(name: 'BusinessUnit', value: params['BusinessUnit']),
