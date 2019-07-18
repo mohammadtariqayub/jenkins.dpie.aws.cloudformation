@@ -173,10 +173,10 @@ def main():
 
     #stack_output = cf_client.describe_stacks(StackName=stack_name)
     #print (stack_output)
-    #acm_syd_output = resources['StackResourceSummaries'][0]['PhysicalResourceId']
-    #print("ec2 instance ID is : ", acm_syd_output)
+    s3_waf_output = resources['StackResourceSummaries'][0]['PhysicalResourceId']
+    print("s3 WAF bucket name : ", s3_waf_output)
 
-    create_artifact(str(acm_syd_output))
+    create_artifact(str(s3_waf_output))
 
 if __name__ == "__main__":
     main()
