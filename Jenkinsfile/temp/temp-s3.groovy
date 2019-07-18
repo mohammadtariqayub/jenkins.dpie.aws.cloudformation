@@ -6,7 +6,7 @@ node ('master') {
   
   stage('deploy s3 buckets') {
     echo "deploy s3 buckets for WAF and CF"
-    build job: 's3-bucket-CD',
+    build job: 's3-bucket',
            parameters: [
                 string(name: 'StackName', value: params['StackName']),
                 string(name: 'Application', value: params['Application']),
