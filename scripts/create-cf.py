@@ -39,7 +39,7 @@ BucketName = BusinessOwner + "-" + Application + "-" + "cf-logs"
 CloudfrontCertificate = Acm_us1_ARN
 ELBDNSName = albDNS
 WafAcl = waf_acl
-CFNTemplate = ['deploy-cloudfront-single-domain.yml']
+CFNTemplate = 'deploy-cloudfront-single-domain.yml'
 Role = 'web'
 PublicAccess = 'no'
 
