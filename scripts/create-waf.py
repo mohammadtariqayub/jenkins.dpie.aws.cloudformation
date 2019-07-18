@@ -169,15 +169,15 @@ def main():
     cfwaiter.wait(StackName=stack_name)
     print("Stack status: " + stack.stack_status)
 
-    resources = cf_client.list_stack_resources(StackName=stack_name)
-    print(resources)
+    #resources = cf_client.list_stack_resources(StackName=stack_name)
+    #print(resources)
 
-    #stack_output = cf_client.describe_stacks(StackName=stack_name)
-    #print (stack_output)
-    #s3_waf_output = resources['StackResourceSummaries'][0]['PhysicalResourceId']
-    #print("s3 WAF bucket name : ", s3_waf_output)
+    stack_output = cf_client.describe_stacks(StackName=stack_name)
+    print (stack_output)
+    #waf_output = resources['StackResourceSummaries'][0]['PhysicalResourceId']
+    #print("s3 WAF bucket name : ", waf_output)
 
-    #create_artifact(str(s3_waf_output))
+    #create_artifact(str(waf_output))
 
 if __name__ == "__main__":
     main()
