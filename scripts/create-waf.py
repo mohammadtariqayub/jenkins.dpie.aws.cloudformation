@@ -21,9 +21,9 @@ ActivateScannersProbesProtectionParam = 'yes - AWS Lambda log parser'
 ActivateReputationListsProtectionParam = 'yes'
 ActivateBadBotProtectionParam = 'yes'
 EndpointType = 'CloudFront'
-RequestThreshold = 2000
-ErrorThreshold = 50
-WAFBlockPeriod = 240
+RequestThreshold = '2000'
+ErrorThreshold = '50'
+WAFBlockPeriod = '240'
 ApiGatewayBadBotName = Application + "-" + BusinessOwner
 
 def get_arn(account_id, role_name):
