@@ -169,7 +169,7 @@ def main():
     #stack_output = cf_client.describe_stacks(StackName=stack_name)
     #print (stack_output)
     acm_us1_output = resources['StackResourceSummaries'][0]['PhysicalResourceId']
-    print("ec2 instance ID is : ", acm_us1_output)
+    print("ACM certificate US-1 is  : ", acm_us1_output)
 
     create_artifact(str(acm_us1_output))
 

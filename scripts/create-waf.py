@@ -175,7 +175,7 @@ def main():
     stack_output = cf_client.describe_stacks(StackName=stack_name)
     print (stack_output)
     waf_output = stack_output['Stacks'][0]['Outputs'][0]['OutputValue']
-    print("WAF ACL IS : ", waf_output)
+    print("WAF ACL is : ", waf_output)
 
     create_artifact(str(waf_output))
 
